@@ -1,0 +1,45 @@
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Swift Package Manager
+/.build
+/Packages
+.swiftpm/configuration/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.swiftpm/
+
+# Xcode
+xcuserdata/
+DerivedData/
+*.xcodeproj
+*.xcworkspace
+*.xccheckout
+*.xcscmblueprint
+
+# Build artifacts
+Computer Controller.app
+*.zip
+*.dmg
+
+# Temporary files
+*.tmp
+*.temp
+*~
+.netrc
+
+# IDE files
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# API Keys (if accidentally added)
+*.key
+secrets.txt
