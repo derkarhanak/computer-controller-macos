@@ -1,6 +1,8 @@
-# Computer Controller - macOS AI Assistant
+# Computer Controller - macOS AI Assistant v1.1.0
 
-A modern, open-source macOS application that allows you to control your computer using natural language. The app supports multiple AI providers (DeepSeek, OpenAI, Claude, Ollama) to generate Python code for file operations and other computer tasks, with built-in safety confirmations.
+A modern, open-source macOS application that allows you to control your computer using natural language. The app supports multiple AI providers (DeepSeek, OpenAI, Claude, Groq, Ollama) to generate Python code for file operations and other computer tasks, with built-in safety confirmations.
+
+**🚀 NEW in v1.1.0: Groq Integration with lightning-fast inference!**
 
 [![MIT License](https://img.shields.io/badge/License-MIT-green.svg)](https://choosealicense.com/licenses/mit/)
 [![Swift](https://img.shields.io/badge/Swift-5.7+-orange.svg)](https://swift.org)
@@ -13,6 +15,9 @@ This project is open source and welcomes contributions! See [CONTRIBUTING.md](CO
 ## Features
 
 - **AI-Powered Control**: Use natural language to describe what you want to do
+- **Multi-LLM Support**: DeepSeek, OpenAI, Claude, Groq, and Ollama
+- **⚡ Groq Integration**: Lightning-fast inference with LPU technology
+- **Model Selection**: Choose from 6 Groq models including GPT-OSS 20B
 - **Safe Code Execution**: All generated code is reviewed and requires confirmation before execution
 - **File Operations**: Move, copy, rename, delete files and create directories
 - **Modern UI**: Clean, native macOS interface with SwiftUI
@@ -21,14 +26,31 @@ This project is open source and welcomes contributions! See [CONTRIBUTING.md](CO
 
 ## Requirements
 
-- macOS 14.0 or later
-- Xcode 15.0 or later (for building)
-- DeepSeek API key
+- macOS 12.0 or later
+- Xcode 14.0 or later (for building from source)
+- API key from any supported provider:
+  - **Groq** (recommended): [console.groq.com](https://console.groq.com)
+  - **DeepSeek**: [platform.deepseek.com](https://platform.deepseek.com)
+  - **OpenAI**: [platform.openai.com](https://platform.openai.com)
+  - **Claude**: [console.anthropic.com](https://console.anthropic.com)
+  - **Ollama**: No API key needed (local)
 - Python 3.x (included with macOS)
+
+## 🚀 Quick Start (v1.1.0)
+
+### **Option 1: Download Ready-to-Use App**
+1. Download `Computer-Controller-v1.1.0-Groq-Integration.zip` from releases
+2. Extract and run `./run_app.sh` to launch immediately
+3. Or use `./install_app.sh` to install to Applications folder
+
+### **Option 2: Build from Source**
+1. Clone this repository
+2. Run `swift build -c release`
+3. Follow the setup instructions below
 
 ## Setup Instructions
 
-### 1. Get Your DeepSeek API Key
+### 1. Get Your API Key
 
 1. Visit [DeepSeek's website](https://platform.deepseek.com/)
 2. Create an account and navigate to the API section
@@ -46,8 +68,16 @@ This project is open source and welcomes contributions! See [CONTRIBUTING.md](CO
 
 1. Launch the app
 2. Go to the "Settings & Tools" tab
-3. Click "Set Key" and enter your DeepSeek API key
-4. The app will show "Connected" status when configured correctly
+3. Select your preferred AI provider (DeepSeek, OpenAI, Claude, Groq, or Ollama)
+4. Click "Set Key" and enter your API key
+5. The app will show "Connected" status when configured correctly
+
+### 4. Groq Setup (Recommended for Speed)
+
+1. Visit [console.groq.com](https://console.groq.com) to get your API key
+2. Select "Groq" as your AI provider in the app
+3. Choose your preferred model (default: `openai/gpt-oss-20b`)
+4. Experience lightning-fast inference with LPU technology!
 
 ## Usage Examples
 
@@ -90,6 +120,23 @@ This project is open source and welcomes contributions! See [CONTRIBUTING.md](CO
 - **Error Handling**: Comprehensive error handling and user feedback
 - **File System Limits**: Restricted to safe file operations only
 
+## 🚀 Groq Integration (v1.1.0)
+
+### **Why Groq?**
+- **Ultra-fast inference** (often 10x faster than traditional GPUs)
+- **LPU Technology** for lightning-fast response times
+- **High-quality models** including GPT-OSS 20B
+- **Cost-effective** with generous free tier
+- **OpenAI-compatible API** for seamless integration
+
+### **Available Groq Models**
+- `openai/gpt-oss-20b` - GPT-OSS 20B (default, recommended)
+- `llama3-8b-8192` - Fast Llama 3 8B
+- `llama3-70b-8192` - High-quality Llama 3 70B
+- `mixtral-8x7b-32768` - Mixtral 8x7B
+- `gemma2-9b-it` - Gemma 2 9B
+- `llama2-70b-4096` - Llama 2 70B
+
 ## Architecture
 
 The app is built with a clean, modular architecture:
@@ -97,7 +144,7 @@ The app is built with a clean, modular architecture:
 - **ContentView**: Main tab-based interface
 - **MainOperationView**: AI-powered computer control interface
 - **FileOperationView**: Settings and quick file operations
-- **LLMService**: DeepSeek API integration
+- **LLMService**: Multi-provider AI integration (DeepSeek, OpenAI, Claude, Groq, Ollama)
 - **PythonExecutor**: Safe Python code execution
 - **FileManager Extensions**: Additional file operation utilities
 
@@ -109,11 +156,17 @@ ComputerController/
 ├── ContentView.swift               # Main tab interface
 ├── MainOperationView.swift         # AI control interface
 ├── FileOperationView.swift         # Settings and tools
-├── LLMService.swift               # DeepSeek API service
+├── LLMService.swift               # Multi-provider AI service
 ├── PythonExecutor.swift           # Python execution engine
 ├── FileManager+Extensions.swift   # File operation utilities
 ├── Assets.xcassets/               # App assets
 └── Info.plist                     # App configuration
+
+Distribution Files:
+├── Computer Controller.app         # macOS app bundle
+├── run_app.sh                     # Quick launch script
+├── install_app.sh                 # Installation script
+└── README.md                      # This documentation
 ```
 
 ## Troubleshooting
