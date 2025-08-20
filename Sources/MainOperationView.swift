@@ -81,23 +81,36 @@ struct MainOperationView: View {
                 
                 VStack(alignment: .trailing, spacing: 4) {
                     // AI Provider indicator
-                    HStack(spacing: 6) {
-                        Image(systemName: providerIcon)
-                            .foregroundColor(providerColor)
-                            .font(.caption)
+                    VStack(alignment: .trailing, spacing: 2) {
+                        HStack(spacing: 6) {
+                            Image(systemName: providerIcon)
+                                .foregroundColor(providerColor)
+                                .font(.caption)
+                            
+                            Text("AI: \(llmService.selectedProvider.rawValue)")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                                .foregroundColor(providerColor)
+                            
+                            if !llmService.selectedProvider.requiresApiKey {
+                                Text("(Local)")
+                                    .font(.caption2)
+                                    .foregroundColor(.green)
+                                    .padding(.horizontal, 3)
+                                    .padding(.vertical, 1)
+                                    .background(Color.green.opacity(0.1))
+                                    .cornerRadius(2)
+                            }
+                        }
                         
-                        Text("AI: \(llmService.selectedProvider.rawValue)")
-                            .font(.caption)
-                            .fontWeight(.medium)
-                            .foregroundColor(providerColor)
-                        
-                        if !llmService.selectedProvider.requiresApiKey {
-                            Text("(Local)")
+                        // Model indicator
+                        if llmService.selectedProvider == .groq || llmService.selectedProvider == .ollama {
+                            Text(llmService.getCurrentModelName())
                                 .font(.caption2)
-                                .foregroundColor(.green)
+                                .foregroundColor(.secondary)
                                 .padding(.horizontal, 3)
                                 .padding(.vertical, 1)
-                                .background(Color.green.opacity(0.1))
+                                .background(Color.secondary.opacity(0.1))
                                 .cornerRadius(2)
                         }
                     }
@@ -139,7 +152,7 @@ struct MainOperationView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 16)
-        .padding(.bottom, 8)
+        .padding(.bottom, 12)
     }
     
     private var inputArea: some View {
@@ -260,7 +273,6 @@ struct MainOperationView: View {
                                 
                                 Text(pythonExecutor.lastResult ?? "")
                                     .font(.system(.body, design: .monospaced))
-                                    .padding(12)
                                     .background(Color.green.opacity(0.1))
                                     .cornerRadius(6)
                             }
@@ -370,6 +382,8 @@ struct MainOperationView: View {
             return "cpu"
         case .claude:
             return "sparkles"
+        case .groq:
+            return "bolt.fill"
         case .ollama:
             return "house"
         }
@@ -383,6 +397,8 @@ struct MainOperationView: View {
             return .green
         case .claude:
             return .purple
+        case .groq:
+            return .red
         case .ollama:
             return .blue
         }

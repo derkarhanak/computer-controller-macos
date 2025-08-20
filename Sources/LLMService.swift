@@ -5,6 +5,7 @@ enum LLMProvider: String, CaseIterable {
     case deepseek = "DeepSeek"
     case openai = "OpenAI"
     case claude = "Anthropic Claude"
+    case groq = "Groq"
     case ollama = "Ollama (Local)"
     
     var baseURL: String {
@@ -15,6 +16,8 @@ enum LLMProvider: String, CaseIterable {
             return "https://api.openai.com/v1/chat/completions"
         case .claude:
             return "https://api.anthropic.com/v1/messages"
+        case .groq:
+            return "https://api.groq.com/openai/v1/chat/completions"
         case .ollama:
             return "http://localhost:11434/api/generate"
         }
@@ -28,6 +31,8 @@ enum LLMProvider: String, CaseIterable {
             return "gpt-4"
         case .claude:
             return "claude-3-sonnet-20240229"
+        case .groq:
+            return "openai/gpt-oss-20b" // GPT-OSS 20B model
         case .ollama:
             return "llama3.2:3b" // Default, will be overridden by selectedOllamaModel
         }
@@ -35,7 +40,7 @@ enum LLMProvider: String, CaseIterable {
     
     var requiresApiKey: Bool {
         switch self {
-        case .deepseek, .openai, .claude:
+        case .deepseek, .openai, .claude, .groq:
             return true
         case .ollama:
             return false
@@ -62,9 +67,12 @@ class LLMService: ObservableObject {
     @AppStorage("deepseekApiKey") private var deepseekApiKey: String = ""
     @AppStorage("openaiApiKey") private var openaiApiKey: String = ""
     @AppStorage("claudeApiKey") private var claudeApiKey: String = ""
+    @AppStorage("groqApiKey") private var groqApiKey: String = ""
+    @AppStorage("selectedGroqModel") var selectedGroqModel: String = "openai/gpt-oss-20b"
     @AppStorage("selectedOllamaModel") var selectedOllamaModel: String = "llama3.2:3b"
     @Published var conversationHistory: [ConversationEntry] = []
     @Published var availableOllamaModels: [String] = []
+    @Published var availableGroqModels: [String] = []
     
     var selectedProvider: LLMProvider {
         get {
@@ -76,6 +84,10 @@ class LLMService: ObservableObject {
             if newValue == .ollama {
                 Task {
                     await fetchAvailableOllamaModels()
+                }
+            } else if newValue == .groq {
+                Task {
+                    await fetchAvailableGroqModels()
                 }
             }
         }
@@ -89,8 +101,25 @@ class LLMService: ObservableObject {
             return openaiApiKey
         case .claude:
             return claudeApiKey
+        case .groq:
+            return groqApiKey
         case .ollama:
             return "" // No API key needed for local Ollama
+        }
+    }
+    
+    private var currentModel: String {
+        switch selectedProvider {
+        case .deepseek:
+            return selectedProvider.defaultModel
+        case .openai:
+            return selectedProvider.defaultModel
+        case .claude:
+            return selectedProvider.defaultModel
+        case .groq:
+            return selectedGroqModel
+        case .ollama:
+            return selectedOllamaModel
         }
     }
     
@@ -99,6 +128,10 @@ class LLMService: ObservableObject {
         if selectedProvider == .ollama {
             Task {
                 await fetchAvailableOllamaModels()
+            }
+        } else if selectedProvider == .groq {
+            Task {
+                await fetchAvailableGroqModels()
             }
         }
     }
@@ -235,10 +268,10 @@ class LLMService: ObservableObject {
         var requestBody: [String: Any] = [:]
         
         switch selectedProvider {
-        case .deepseek, .openai:
+        case .deepseek, .openai, .groq:
             request.setValue("Bearer \(currentApiKey)", forHTTPHeaderField: "Authorization")
             requestBody = [
-                "model": selectedProvider.defaultModel,
+                "model": currentModel,
                 "messages": [
                     [
                         "role": "user",
@@ -285,7 +318,7 @@ class LLMService: ObservableObject {
         var content: String = ""
         
         switch selectedProvider {
-        case .deepseek, .openai:
+        case .deepseek, .openai, .groq:
             let response = try decoder.decode(OpenAIResponse.self, from: data)
             guard let messageContent = response.choices.first?.message.content else {
                 throw LLMError.invalidResponse
@@ -324,6 +357,8 @@ class LLMService: ObservableObject {
             openaiApiKey = key
         case .claude:
             claudeApiKey = key
+        case .groq:
+            groqApiKey = key
         case .ollama:
             break // No API key needed
         }
@@ -338,6 +373,8 @@ class LLMService: ObservableObject {
             return openaiApiKey
         case .claude:
             return claudeApiKey
+        case .groq:
+            return groqApiKey
         case .ollama:
             return ""
         }
@@ -392,6 +429,45 @@ class LLMService: ObservableObject {
     
     func setOllamaModel(_ model: String) {
         selectedOllamaModel = model
+    }
+    
+    func setGroqModel(_ model: String) {
+        selectedGroqModel = model
+    }
+    
+    func getCurrentModelName() -> String {
+        switch selectedProvider {
+        case .deepseek:
+            return "DeepSeek Chat"
+        case .openai:
+            return "GPT-4"
+        case .claude:
+            return "Claude 3 Sonnet"
+        case .groq:
+            return selectedGroqModel
+        case .ollama:
+            return selectedOllamaModel
+        }
+    }
+    
+    func fetchAvailableGroqModels() async {
+        // Groq has a fixed set of available models
+        let models = [
+            "openai/gpt-oss-20b",  // GPT-OSS 20B (User's preferred model)
+            "llama3-8b-8192",      // Fast Llama 3 8B
+            "llama3-70b-8192",     // High-quality Llama 3 70B
+            "mixtral-8x7b-32768",  // Mixtral 8x7B
+            "gemma2-9b-it",        // Gemma 2 9B
+            "llama2-70b-4096"      // Llama 2 70B
+        ]
+        
+        await MainActor.run {
+            self.availableGroqModels = models
+            // If current selected model is not available, use the first one
+            if !models.contains(selectedGroqModel) {
+                selectedGroqModel = models.first!
+            }
+        }
     }
     
 

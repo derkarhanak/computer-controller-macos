@@ -131,6 +131,23 @@ struct FileOperationView: View {
                                 .frame(maxWidth: 200)
                             }
                         }
+                        
+                        // Groq model selection
+                        if llmService.selectedProvider == .groq && !llmService.availableGroqModels.isEmpty {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Select Model:")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                
+                                Picker("Groq Model", selection: $llmService.selectedGroqModel) {
+                                    ForEach(llmService.availableGroqModels, id: \.self) { model in
+                                        Text(model).tag(model)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: 200)
+                            }
+                        }
                     }
                 }
             }
@@ -313,6 +330,8 @@ struct ProviderButton: View {
             return "cpu"
         case .claude:
             return "sparkles"
+        case .groq:
+            return "bolt.fill"
         case .ollama:
             return "house"
         }
@@ -326,6 +345,8 @@ struct ProviderButton: View {
             return .green
         case .claude:
             return .purple
+        case .groq:
+            return .red
         case .ollama:
             return .blue
         }
@@ -445,6 +466,10 @@ struct ApiKeyInputView: View {
                     .foregroundColor(.blue)
             case .claude:
                 Text("Get your API key from console.anthropic.com")
+                    .font(.caption)
+                    .foregroundColor(.blue)
+            case .groq:
+                Text("Get your API key from console.groq.com")
                     .font(.caption)
                     .foregroundColor(.blue)
             case .ollama:
